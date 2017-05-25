@@ -10,9 +10,9 @@ case class BankAccountState(events : List[Event] = List()) {
 
   def getAllBankAccountIds: List[BankAccountId] = events
       .collect({case bc: BankAccountCreated => bc})
-      .map(bankAccounts => bankAccounts.bankAccountId)
+      .map({bankAccounts => bankAccounts.bankAccountId})
 
-  def getBankAccountBalance(bankAccountId: BankAccountId): Amount = {
+  def getBankAccountBalance(bankAccountId: BankAccountId): Balance = {
     val mapToAmount = (event: Event) => { //maybe with try and filter?
       event match {
         case event: AmountWithdrawn => {
@@ -27,13 +27,31 @@ case class BankAccountState(events : List[Event] = List()) {
           else
             0
         }
-        case _ => 0.0
+        case _ => 0
       }
     }: Amount
 
+    Balance(
+      events
+        .par
+        .map(mapToAmount)
+        .sum
+    )
+  }
+
+  def getBankAccountOwner(bankAccountId: BankAccountId): BankAccountOwner = {
     events
-      .par
-      .map(mapToAmount)
-      .reduce(_ + _)
+      .filter(_.bankAccountId == bankAccountId)
+      .collectFirst({case bc: BankAccountCreated => bc})
+      .get
+      .bankAccountOwner
+  }
+
+  def getBankAccount(bankAccountId: BankAccountId): BankAccount = {
+    BankAccount(
+      bankAccountId,
+      getBankAccountOwner(bankAccountId),
+      getBankAccountBalance(bankAccountId)
+    )
   }
 }

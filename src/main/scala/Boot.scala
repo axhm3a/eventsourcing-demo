@@ -67,7 +67,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask BankAccountQuery(id),
           timeout.duration
-        ).asInstanceOf[Amount] asJson
+        ).asInstanceOf[BankAccount] asJson
       )
     )
   }

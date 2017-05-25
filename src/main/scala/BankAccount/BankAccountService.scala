@@ -22,7 +22,7 @@ class BankAccountService extends PersistentActor {
     case _: AllBankAccountsQuery =>
       sender ! state.getAllBankAccountIds
     case sbq: BankAccountQuery =>
-      sender ! state.getBankAccountBalance(sbq.bankAccountId)
+      sender ! state.getBankAccount(sbq.bankAccountId)
     case command: Command =>
       println (s"command => $command")
 

@@ -32,6 +32,7 @@ case class BankAccountState(events : List[Event] = List()) {
     }: Amount
 
     events
+      .par
       .map(mapToAmount)
       .reduce(_ + _)
   }

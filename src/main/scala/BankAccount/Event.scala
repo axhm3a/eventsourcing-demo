@@ -16,25 +16,23 @@ object Event {
         state.getAllBankAccountIds.length,
         bcc.bankAccountOwner
       )
-    case bwc: WithdrawCommand => {
-      if(state.getBankAccountBalance(bwc.bankAccountId) - bwc.amount >= 0) {
+
+    case bwc: WithdrawCommand =>
+      if(state.getBankAccountBalance(bwc.bankAccountId) - bwc.amount >= 0)
         new AmountWithdrawn(
           bwc.bankAccountId,
           bwc.amount
         )
-      } else {
+      else
         throw new Exception("not enough money")
-      }
-    }
-    case bwc: DepositCommand => {
-      if(state.getAllBankAccountIds.contains(bwc.bankAccountId)) {
+
+    case bwc: DepositCommand =>
+      if(state.getAllBankAccountIds.contains(bwc.bankAccountId))
         new AmountDeposited(
           bwc.bankAccountId,
           bwc.amount
         )
-      } else {
+      else
         throw new Exception("unknown account")
-      }
-    }
   }
 }

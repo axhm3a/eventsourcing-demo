@@ -5,18 +5,15 @@ package BankAccount
   */
 case class BankAccountState(events : List[Event] = List()) {
 
-  def update(event: Event) : BankAccountState = {
+  def update(event: Event) : BankAccountState =
     BankAccountState(event :: events)
-  }
 
-  def getAllBankAccountIds: List[BankAccountId] = {
-    events
+  def getAllBankAccountIds: List[BankAccountId] = events
       .collect({case bc: BankAccountCreated => bc})
       .map(bankAccounts => bankAccounts.bankAccountId)
-  }
 
   def getBankAccountBalance(bankAccountId: BankAccountId): Amount = {
-    val mapToAmount = (event: Event) => {
+    val mapToAmount = (event: Event) => { //maybe with try and filter?
       event match {
         case event: AmountWithdrawn => {
           if(event.bankAccountId == bankAccountId)
@@ -34,6 +31,8 @@ case class BankAccountState(events : List[Event] = List()) {
       }
     }: Amount
 
-    events.map(mapToAmount).reduce(_ + _)
+    events
+      .map(mapToAmount)
+      .reduce(_ + _)
   }
 }

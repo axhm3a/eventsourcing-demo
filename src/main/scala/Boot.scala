@@ -18,12 +18,10 @@ object Boot extends App with HttpTrait {
     complete(
       HttpEntity(
         ContentTypes.`application/json`,
-        {
-          Await.result(
-            bankAccount ask AllBankAccountsQuery(),
-            timeout.duration
-          ).asInstanceOf[List[BankAccountId]] asJson
-        }
+        Await.result(
+          bankAccount ask AllBankAccountsQuery(),
+          timeout.duration
+        ).asInstanceOf[List[BankAccountId]] asJson
       )
     )
   } ~ (path("account") & post) {
@@ -31,67 +29,47 @@ object Boot extends App with HttpTrait {
       (accountOwner) => complete(
         HttpEntity(
           ContentTypes.`application/json`,
-          {
-            Await.result(
-              bankAccount ask BankAccountCreateCommand(accountOwner),
-              timeout.duration
-            ).asInstanceOf[Event] asJson
-          }
+          Await.result(
+            bankAccount ask BankAccountCreateCommand(accountOwner),
+            timeout.duration
+          ).asInstanceOf[Event] asJson
         )
       )
     }
-  } ~ post {
-    pathPrefix("account" / LongNumber / "withdraw") {
-      id => {
-        parameters('amount.as[Double]) {
-          (amount) => complete(
-            HttpEntity(
-              ContentTypes.`application/json`,
-              {
-                Await.result(
-                  bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
-                  timeout.duration
-                ).asInstanceOf[Event] asJson
-              }
-            )
-          )
-        }
-      }
-    }
-  } ~ post {
-    pathPrefix("account" / LongNumber / "deposit") {
-      id => {
-        parameters('amount.as[Double]) {
-          (amount) => complete(
-            HttpEntity(
-              ContentTypes.`application/json`,
-              {
-                Await.result(
-                  bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
-                  timeout.duration
-                ).asInstanceOf[Event] asJson
-              }
-            )
-          )
-        }
-      }
-    }
-  } ~ get {
-    pathPrefix("account" / LongNumber) {
-      id => {
-        complete(
-          HttpEntity(
-            ContentTypes.`application/json`,
-            {
-              Await.result(
-                bankAccount ask BankAccountQuery(id),
-                timeout.duration
-              ).asInstanceOf[Amount] asJson
-            }
-          )
+  } ~ (post & pathPrefix("account" / LongNumber / "withdraw")) {
+    id => parameters('amount.as[Double]) {
+      (amount) => complete(
+        HttpEntity(
+          ContentTypes.`application/json`,
+          Await.result(
+            bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
+            timeout.duration
+          ).asInstanceOf[Event] asJson
         )
-      }
+      )
     }
+  } ~ (post & pathPrefix("account" / LongNumber / "deposit")) {
+    id => parameters('amount.as[Double]) {
+      (amount) => complete(
+        HttpEntity(
+          ContentTypes.`application/json`,
+          Await.result(
+            bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
+            timeout.duration
+          ).asInstanceOf[Event] asJson
+        )
+      )
+    }
+  } ~ (get & pathPrefix("account" / LongNumber)) {
+    id => complete(
+      HttpEntity(
+        ContentTypes.`application/json`,
+        Await.result(
+          bankAccount ask BankAccountQuery(id),
+          timeout.duration
+        ).asInstanceOf[Amount] asJson
+      )
+    )
   }
 
   val bindingFuture = Http().bindAndHandleAsync(

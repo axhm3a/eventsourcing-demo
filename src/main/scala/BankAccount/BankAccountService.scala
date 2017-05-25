@@ -31,6 +31,6 @@ class BankAccountService extends PersistentActor {
           updateState(event)
           sender ! event
       }
-    case _ => println ("error")
+    case _ => println ("unknown")
   }
 }

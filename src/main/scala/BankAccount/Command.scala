@@ -7,6 +7,6 @@ sealed trait Command {
 
 }
 
-case class BankAccountCreateCommand(bankAccountOwner: BankAccountOwner) extends Command;
-case class WithdrawCommand(bankAccountId: BankAccountId, amount: Amount) extends Command;
-case class DepositCommand(bankAccountId: BankAccountId, amount: Amount) extends Command;
+case class BankAccountCreateCommand(bankAccountOwner: BankAccountOwner) extends Command
+case class WithdrawCommand(bankAccountId: BankAccountId, amount: Amount) extends Command
+case class DepositCommand(bankAccountId: BankAccountId, amount: Amount) extends Command

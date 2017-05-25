@@ -3,9 +3,7 @@ package BankAccount
 /**
   * Created by axhm3a on 23.05.17.
   */
-sealed trait Event {
-
-}
+sealed trait Event
 
 case class BankAccountCreated(bankAccountId: BankAccountId, bankAccountOwner: BankAccountOwner) extends Event
 case class AmountDeposited(bankAccountId: BankAccountId, amount: Amount) extends Event
@@ -27,7 +25,6 @@ object Event {
       } else {
         throw new Exception("not enough money")
       }
-
     }
     case bwc: DepositCommand => {
       if(state.getAllBankAccountIds.contains(bwc.bankAccountId)) {
@@ -39,7 +36,5 @@ object Event {
         throw new Exception("unknown account")
       }
     }
-    case _: Command => throw new Exception("unknown command")
   }
-
 }

@@ -43,13 +43,13 @@ object Boot extends App with HttpTrait {
   } ~ post {
     pathPrefix("account" / LongNumber / "withdraw") {
       id => {
-        parameters('amount.as[Int]) {
+        parameters('amount.as[Double]) {
           (amount) => complete(
             HttpEntity(
               ContentTypes.`application/json`,
               {
                 Await.result(
-                  bankAccount ask WithdrawCommand(id, amount),
+                  bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
                   timeout.duration
                 ).asInstanceOf[Event] asJson
               }
@@ -61,13 +61,13 @@ object Boot extends App with HttpTrait {
   } ~ post {
     pathPrefix("account" / LongNumber / "deposit") {
       id => {
-        parameters('amount.as[Int]) {
+        parameters('amount.as[Double]) {
           (amount) => complete(
             HttpEntity(
               ContentTypes.`application/json`,
               {
                 Await.result(
-                  bankAccount ask DepositCommand(id, amount),
+                  bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
                   timeout.duration
                 ).asInstanceOf[Event] asJson
               }

@@ -10,7 +10,7 @@ class BankAccountService extends PersistentActor {
   var state : BankAccountState = BankAccountState()
 
   def updateState(event : Event) = {
-    println ("processing event")
+    println (s"event => $event")
     state = state.update(event)
   }
 
@@ -24,7 +24,7 @@ class BankAccountService extends PersistentActor {
     case sbq: BankAccountQuery =>
       sender ! state.getBankAccountBalance(sbq.bankAccountId)
     case command: Command =>
-      println ("processing command")
+      println (s"command => $command")
 
       persist(Event(command, state)) {
         event =>

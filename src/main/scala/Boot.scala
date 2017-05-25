@@ -14,7 +14,7 @@ object Boot extends App with HttpTrait {
   val bankAccount = system.actorOf(Props[BankAccountService])
   implicit val timeout = Timeout(500 millis)
 
-  val routes = (path("account") & get) {
+  val routes = (get & path("account")) {
     complete(
       HttpEntity(
         ContentTypes.`application/json`,
@@ -24,7 +24,7 @@ object Boot extends App with HttpTrait {
         ).asInstanceOf[List[BankAccountId]] asJson
       )
     )
-  } ~ (path("account") & post) {
+  } ~ (post & path("account")) {
     parameters('accountOwner.as[String]) {
       (accountOwner) => complete(
         HttpEntity(

@@ -1,6 +1,5 @@
 import akka.actor.Props
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
@@ -16,59 +15,44 @@ object Boot extends App with HttpTrait {
 
   val routes = (get & path("account")) {
     complete(
-      HttpEntity(
-        ContentTypes.`application/json`,
-        Await.result(
-          bankAccount ask AllBankAccountsQuery(),
-          timeout.duration
-        ).asJson()
-      )
+      Await.result(
+        bankAccount ask AllBankAccountsQuery(),
+        timeout.duration
+      ).asJsonEntity()
     )
   } ~ (post & path("account")) {
     parameters('accountOwner.as[String]) {
       (accountOwner) => complete(
-        HttpEntity(
-          ContentTypes.`application/json`,
-          Await.result(
-            bankAccount ask BankAccountCreateCommand(accountOwner),
-            timeout.duration
-          ).asJson()
-        )
+        Await.result(
+          bankAccount ask BankAccountCreateCommand(accountOwner),
+          timeout.duration
+        ).asJsonEntity()
       )
     }
   } ~ (post & pathPrefix("account" / LongNumber / "withdraw")) {
     id => parameters('amount.as[Double]) {
       (amount) => complete(
-        HttpEntity(
-          ContentTypes.`application/json`,
-          Await.result(
-            bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
-            timeout.duration
-          ).asJson()
-        )
+        Await.result(
+          bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
+          timeout.duration
+        ).asJsonEntity()
       )
     }
   } ~ (post & pathPrefix("account" / LongNumber / "deposit")) {
     id => parameters('amount.as[Double]) {
       (amount) => complete(
-        HttpEntity(
-          ContentTypes.`application/json`,
-          Await.result(
-            bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
-            timeout.duration
-          ).asJson()
-        )
+        Await.result(
+          bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
+          timeout.duration
+        ).asJsonEntity()
       )
     }
   } ~ (get & pathPrefix("account" / LongNumber)) {
     id => complete(
-      HttpEntity(
-        ContentTypes.`application/json`,
-        Await.result(
-          bankAccount ask BankAccountQuery(id),
-          timeout.duration
-        ).asJson()
-      )
+      Await.result(
+        bankAccount ask BankAccountQuery(id),
+        timeout.duration
+      ).asJsonEntity()
     )
   }
 

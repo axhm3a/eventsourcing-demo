@@ -21,7 +21,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask AllBankAccountsQuery(),
           timeout.duration
-        ).asInstanceOf[List[BankAccountId]] asJson
+        ).asJson()
       )
     )
   } ~ (post & path("account")) {
@@ -32,7 +32,7 @@ object Boot extends App with HttpTrait {
           Await.result(
             bankAccount ask BankAccountCreateCommand(accountOwner),
             timeout.duration
-          ).asInstanceOf[Event] asJson
+          ).asJson()
         )
       )
     }
@@ -44,7 +44,7 @@ object Boot extends App with HttpTrait {
           Await.result(
             bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
             timeout.duration
-          ).asInstanceOf[Event] asJson
+          ).asJson()
         )
       )
     }
@@ -56,7 +56,7 @@ object Boot extends App with HttpTrait {
           Await.result(
             bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
             timeout.duration
-          ).asInstanceOf[Event] asJson
+          ).asJson()
         )
       )
     }
@@ -67,7 +67,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask BankAccountQuery(id),
           timeout.duration
-        ).asInstanceOf[BankAccount] asJson
+        ).asJson()
       )
     )
   }

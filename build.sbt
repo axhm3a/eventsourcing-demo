@@ -2,11 +2,7 @@ name := "scala-event-sourcing"
 
 version := "1.0"
 
-scalaVersion := "2.12.1"
-
-//resolvers += Resolver.url("artifactory", url("https://dl.bintray.com/sbt/sbt-plugin-releases/com.eed3si9n/sbt-assembly/scala_2.10/sbt_0.13/0.14.4/ivys/"))(Resolver.ivyStylePatterns)
-//addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.4")
-
+scalaVersion := "2.12.2"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.4.18",

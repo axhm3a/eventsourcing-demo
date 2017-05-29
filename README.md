@@ -1,6 +1,8 @@
 event-sourcing with scala and akka
 ==================================
 
+[![Build Status](https://travis-ci.org/axhm3a/eventsourcing-demo.svg?branch=master)](https://travis-ci.org/axhm3a/eventsourcing-demo)
+
 a simple event-sourcing demo with akka, akka-http and akka persistence
 
 example calls with httpie:

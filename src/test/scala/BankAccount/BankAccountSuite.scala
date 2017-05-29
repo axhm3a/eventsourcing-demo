@@ -5,7 +5,6 @@ package BankAccount
 
 import org.scalatest.FlatSpec
 
-// http://www.scalatest.org/user_guide/selecting_a_style
 class BankAccountSuite extends FlatSpec {
   "A new bankaccount" should "have zero balance" in {
     assert(

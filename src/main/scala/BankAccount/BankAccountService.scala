@@ -2,6 +2,8 @@ package BankAccount
 
 import akka.persistence.PersistentActor
 
+import scala.util.{Failure, Success}
+
 /**
   * Created by axhm3a on 23.05.17.
   */
@@ -26,11 +28,19 @@ class BankAccountService extends PersistentActor {
     case command: Command =>
       println (s"command => $command")
 
-      persist(Event(command, state)) {
-        event =>
-          updateState(event)
-          sender ! event
+      Event(command, state) match {
+        case Success(event) =>
+          persist(event) {
+            event =>
+              updateState(event)
+              sender ! event
+          }
+        case Failure(e) =>
+          println (s"invalid => $e")
+          sender ! e
       }
+
+
     case _ => println ("unknown")
   }
 }

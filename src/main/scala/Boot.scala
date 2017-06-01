@@ -3,13 +3,28 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
-import JsonHelper._
 import akka.util.Timeout
+
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import BankAccount._
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import akka.http.scaladsl.server.ExceptionHandler
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import spray.json.{DefaultJsonProtocol, PrettyPrinter}
 
-object Boot extends App with HttpTrait {
+trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
+  implicit val printer = PrettyPrinter
+
+  implicit val balanceFormat = jsonFormat1(Balance)
+  implicit val bankAccountFormat = jsonFormat3(BankAccount)
+  implicit val amountDepositedFormat = jsonFormat2(AmountDeposited)
+  implicit val amountWithdrawnFormat = jsonFormat2(AmountWithdrawn)
+  implicit val bankAccountCreatedFormat = jsonFormat2(BankAccountCreated)
+}
+
+
+object Boot extends App with HttpTrait with JsonSupport{
   val bankAccount = system.actorOf(Props[BankAccountService])
   implicit val timeout = Timeout(500 millis)
 
@@ -18,7 +33,7 @@ object Boot extends App with HttpTrait {
       Await.result(
         bankAccount ask AllBankAccountsQuery(),
         timeout.duration
-      ).asJsonEntity()
+      ).asInstanceOf[List[BankAccountId]]
     )
   } ~ (post & path("account")) {
     parameters('accountOwner.as[String]) {
@@ -26,7 +41,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask BankAccountCreateCommand(accountOwner),
           timeout.duration
-        ).asJsonEntity()
+        ).asInstanceOf[BankAccountCreated]
       )
     }
   } ~ (post & pathPrefix("account" / LongNumber / "withdraw")) {
@@ -35,7 +50,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask WithdrawCommand(id, BigDecimal.valueOf(amount)),
           timeout.duration
-        ).asJsonEntity()
+        ).asInstanceOf[AmountWithdrawn]
       )
     }
   } ~ (post & pathPrefix("account" / LongNumber / "deposit")) {
@@ -44,7 +59,7 @@ object Boot extends App with HttpTrait {
         Await.result(
           bankAccount ask DepositCommand(id, BigDecimal.valueOf(amount)),
           timeout.duration
-        ).asJsonEntity()
+        ).asInstanceOf[AmountDeposited]
       )
     }
   } ~ (get & pathPrefix("account" / LongNumber)) {
@@ -52,9 +67,22 @@ object Boot extends App with HttpTrait {
       Await.result(
         bankAccount ask BankAccountQuery(id),
         timeout.duration
-      ).asJsonEntity()
+      ).asInstanceOf[BankAccount]
     )
   }
+
+  implicit def myExceptionHandler: ExceptionHandler =
+    ExceptionHandler {
+      case e: ClassCastException =>
+        extractUri { uri =>
+          complete(
+            HttpResponse(
+              StatusCodes.InternalServerError,
+              entity = e.getMessage
+            )
+          )
+        }
+    }
 
   val bindingFuture = Http().bindAndHandleAsync(
     Route.asyncHandler(routes),

@@ -1,5 +1,7 @@
 package BankAccount
 
+import scala.util.{Failure, Success, Try}
+
 /**
   * Created by axhm3a on 23.05.17.
   */
@@ -16,29 +18,29 @@ case class AmountDeposited(bankAccountId: BankAccountId, amount: Amount) extends
 case class AmountWithdrawn(bankAccountId: BankAccountId, amount: Amount) extends TransactionEvent
 
 object Event {
-  def apply(command: Command, state: BankAccountState): Event = command match {
+  def apply(command: Command, state: BankAccountState): Try[Event] = command match {
     case bcc : BankAccountCreateCommand =>
-      BankAccountCreated(
+      Success(BankAccountCreated(
         state.getAllBankAccountIds.length,
         bcc.bankAccountOwner
-      )
+      ))
 
     case bwc: WithdrawCommand =>
       if(state.getBankAccountBalance(bwc.bankAccountId).amount - bwc.amount >= 0)
-        AmountWithdrawn(
+        Success(AmountWithdrawn(
           bwc.bankAccountId,
           bwc.amount
-        )
+        ))
       else
-        throw new Exception("not enough money")
+        Failure(new Exception("not enough money"))
 
     case bwc: DepositCommand =>
       if(state.getAllBankAccountIds.contains(bwc.bankAccountId))
-        AmountDeposited(
+        Success(AmountDeposited(
           bwc.bankAccountId,
           bwc.amount
-        )
+        ))
       else
-        throw new Exception("unknown account")
+        Failure(new Exception("unknown account"))
   }
 }

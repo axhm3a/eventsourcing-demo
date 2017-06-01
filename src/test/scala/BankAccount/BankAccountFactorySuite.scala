@@ -2,6 +2,8 @@ package BankAccount
 
 import org.scalatest.FunSuite
 
+import scala.util.Success
+
 /**
   * Created by axhm3a on 29.05.17.
   */
@@ -9,7 +11,7 @@ class BankAccountFactorySuite extends FunSuite {
   test("test BankAccountCreated") {
     assert(
       Event(BankAccountCreateCommand("bar"), BankAccountState()) ==
-      BankAccountCreated(0, "bar")
+      Success(BankAccountCreated(0, "bar"))
     )
   }
 
@@ -17,7 +19,7 @@ class BankAccountFactorySuite extends FunSuite {
     assert(
       Event(DepositCommand(0, 55.55),
         BankAccountState(List(BankAccountCreated(0, "bar")))
-      ) == AmountDeposited(0, 55.55)
+      ) == Success(AmountDeposited(0, 55.55))
     )
   }
 
@@ -27,7 +29,7 @@ class BankAccountFactorySuite extends FunSuite {
         BankAccountState(List(
           BankAccountCreated(0, "bar"),
           AmountDeposited(0, 25.0)))
-      ) == AmountWithdrawn(0, 10.0)
+      ) == Success(AmountWithdrawn(0, 10.0))
     )
   }
 }
